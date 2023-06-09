@@ -1,9 +1,4 @@
-/* @tailwind base; */
+@tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-
-ul,li {
-    margin: 0;
-    padding: 0;
-}
