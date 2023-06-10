@@ -2,14 +2,17 @@ import axios from "axios";
 import { prisma } from "../db";
 import { type TempMailInbox } from "@prisma/client";
 
+const RapidAPIHost = "temp-mail44.p.rapidapi.com";
+const RapidAPIKey = process.env.RAPID_API_KEY;
+
 export async function tempMailCreate({ userId }: { userId: string }) {
   const options = {
     method: "POST",
     url: "https://temp-mail44.p.rapidapi.com/api/v3/email/new",
     headers: {
       "content-type": "application/json",
-      "X-RapidAPI-Key": "3055243c93mshca2e7592aa0ae9fp1f5818jsn64984e0ee0d7",
-      "X-RapidAPI-Host": "temp-mail44.p.rapidapi.com",
+      "X-RapidAPI-Key": RapidAPIKey,
+      "X-RapidAPI-Host": RapidAPIHost,
     },
     data: {
       key1: "value",
@@ -41,8 +44,8 @@ export async function tempMailInbox({ email }: { email: string }) {
     method: "GET",
     url: `https://temp-mail44.p.rapidapi.com/api/v3/email/${email}/messages`,
     headers: {
-      "X-RapidAPI-Key": "3055243c93mshca2e7592aa0ae9fp1f5818jsn64984e0ee0d7",
-      "X-RapidAPI-Host": "temp-mail44.p.rapidapi.com",
+      "X-RapidAPI-Key": RapidAPIKey,
+      "X-RapidAPI-Host": RapidAPIHost,
     },
   };
 
