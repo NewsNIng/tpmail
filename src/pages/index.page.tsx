@@ -179,9 +179,9 @@ function Inbox() {
     <div className="mt-8">
       <div className="inline-block text-sm text-red-400">
         Before clicking the refresh button, please make sure that an email has
-        been sent to this mailbox
+        been sent to this mailbox.
       </div>
-      <div className="mt-1 flex space-x-1">
+      <div className="mt-4 flex space-x-1">
         <span className="text-xl">Inbox:</span>
 
         <button
@@ -191,7 +191,7 @@ function Inbox() {
           Refresh
         </button>
       </div>
-      <div className="mt-1 rounded border px-2 py-1">
+      <div className="mt-2 rounded border px-2 py-1">
         {isLoading ? (
           <>
             <div className="mt-1">
