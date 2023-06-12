@@ -50,7 +50,7 @@ export const api = createTRPCNext<AppRouter>({
             // get fingerprint browser id
             const browserId = await getBrowserId()
             return {
-              'did': browserId,
+              did: browserId,
             }
           },
         }),
