@@ -1,0 +1,45 @@
+root: true
+extends:
+  - next/core-web-vitals
+  - ./lint/eslint
+settings:
+  next:
+    rootDir: ['/']
+rules:
+  react/prop-types: 0
+  # https://github.com/import-js/eslint-plugin-import/blob/main/docs/rules/order.md
+  'import/order':
+    [
+      'warn',
+      {
+        'groups':
+          [
+            'builtin',
+            'external',
+            'internal',
+            'parent',
+            'sibling',
+            'index',
+            'object',
+            'type',
+          ],
+        'newlines-between': 'always',
+        'pathGroups':
+          [
+            { 'pattern': '~/**', 'group': 'internal', position: 'after' },
+            { 'pattern': '@/**', 'group': 'internal', position: 'after' },
+          ],
+      },
+    ]
+  'unused-imports/no-unused-vars':
+    [
+      'warn',
+      {
+        args: 'after-used',
+        ignoreRestSiblings: true,
+        'argsIgnorePattern': '^_',
+      },
+    ]
+  # off by https://github.com/antfu/unplugin-auto-import#eslint
+  'react/jsx-no-undef': 'off'
+  'no-console': 'warn'
