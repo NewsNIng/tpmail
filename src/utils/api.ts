@@ -9,6 +9,7 @@ import { createTRPCNext } from '@trpc/next'
 import { type inferRouterInputs, type inferRouterOutputs } from '@trpc/server'
 import superjson from 'superjson'
 
+import { getBrowserId } from '@/helper/fingerprint'
 import { type AppRouter } from '@/server/api/root'
 
 const getBaseUrl = () => {
@@ -45,6 +46,13 @@ export const api = createTRPCNext<AppRouter>({
         }),
         httpBatchLink({
           url: `${getBaseUrl()}/api/trpc`,
+          headers: async () => {
+            // get fingerprint browser id
+            const browserId = await getBrowserId()
+            return {
+              'did': browserId,
+            }
+          },
         }),
       ],
     }

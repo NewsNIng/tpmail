@@ -1,119 +1,157 @@
-import dayjs from 'dayjs'
-import { useSession } from 'next-auth/react'
-import { useRouter } from 'next/router'
+import Image from 'next/image'
 import { useEffect, useState } from 'react'
+import dayjs from 'dayjs'
 
 import { api } from '@/utils/api'
-
-function useHistoryEmail() {
-  const [email, _setEmail] = useState('')
-
-  const setEmail = (email: string) => {
-    window.localStorage.setItem('tpmail', email)
-    _setEmail(email)
-  }
-
-  useEffect(() => {
-    const email = window.localStorage.getItem('tpmail')
-    if (email) {
-      _setEmail(email)
-    }
-  }, [])
-
-  return {
-    email,
-    setEmail,
-  }
-}
+import { getBrowserId } from '@/helper/fingerprint'
 
 export default function Page() {
-  const router = useRouter()
-  const { data: session, status } = useSession()
-  const { email: historyEmail, setEmail: setHistoryEmail } = useHistoryEmail()
-
-  const createApi = api.tempmail.create.useMutation({
-    onSuccess(data) {
-      if (data?.email) {
-        setHistoryEmail(data.email)
-      }
-    },
-  })
-
-  const onGetEmail = () => {
-    if (historyEmail) {
-      alert('You already have an email')
-    } else {
-      createApi.mutate()
-    }
-  }
-
-  const onLogin = () => {
-    router.push('/api/auth/signin')
-  }
-
   return (
-    <div className='mx-auto max-w-3xl p-4'>
-      <h1 className='text-3xl font-bold'>Temp Mail</h1>
-      <p className='my-2 text-gray-600'>
-        This is a temporary email service. You can use it to sign up to
-        websites.
-      </p>
-
-      {status === 'unauthenticated' && (
-        <>
-          <div className='space-y-1'>
-            <button
-              className='
-        rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700
-            '
-              onClick={onLogin}
-            >
-              Login
-            </button>
-            <div>
-              it{"'"}s <span className='font-bold text-green-600'>free</span>
-            </div>
-          </div>
-        </>
-      )}
-
-      {status === 'authenticated' && (
-        <>
-          <button
-            className='
-        rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700
-      '
-            onClick={onGetEmail}
+    <div className='bg-red-200 min-h-[100vh]'>
+      <Image
+        className='z-0 blur-[3px] fixed inset-0'
+        src='/home_bg.png'
+        alt='bg'
+        fill
+        style={{
+          objectFit: 'cover',
+        }}
+      />
+      <div className='relative z-10 px-4 py-20 min-h-[78vh] overflow-y-auto flex flex-col items-center justify-center'>
+        <h1 className='text-white text-5xl leading-[60px] lg:text-[64px] lg:leading-[84px]'>
+          Get Your <span className=''>Temporary</span>{' '}
+          <span
+            className='font-bold'
+            style={{
+              // 彩色 渐变
+              background: 'linear-gradient(45deg, #03a9f4 30%, #ffeb3b 90%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+            }}
           >
-            Get a temp email
-          </button>
+            Email
+          </span>
+        </h1>
+        <p
+          className='mt-4 text-gray-100 text-lg'
+          style={{
+            textShadow: '4px 4px 8px #000000',
+          }}
+        >
+          This is a temporary email service. You can use it to sign up to
+          websites.
+        </p>
 
-          {createApi.isLoading && (
-            <div className='mt-4'>
-              <div className='animate-pulse space-y-1'>
-                <div className='h-4 w-1/2 rounded bg-gray-300' />
-                <div className='h-4 w-2/3 rounded bg-gray-300' />
-                <div className='h-4 w-1/3 rounded bg-gray-300' />
-              </div>
-            </div>
-          )}
-
-          {historyEmail && (
-            <>
-              <Emails />
-              <Inbox />
-            </>
-          )}
-        </>
-      )}
+        <GetEmail />
+        <EmailBox />
+      </div>
     </div>
   )
 }
 
-function Emails() {
-  // const { data, isLoading, refetch } = api.tempmail.list.useQuery();
+function Loading({ className }: { className?: string }) {
+  return (
+    <div className={className}>
+      <div className='animate-pulse space-y-1'>
+        <div className='h-4 w-1/2 rounded bg-gray-500' />
+        <div className='h-4 w-2/3 rounded bg-gray-500' />
+        <div className='h-4 w-1/3 rounded bg-gray-500' />
+      </div>
+    </div>
+  )
+}
 
-  const { email } = useHistoryEmail()
+function useDeviceId() {
+  const [deviceId, setDeviceId] = useState<string>('')
+  useEffect(() => {
+    getBrowserId().then((id) => {
+      setDeviceId(id)
+    })
+  }, [])
+
+  return deviceId
+}
+
+function GetEmail() {
+  const deviceId = useDeviceId()
+  // list emails
+  const { data: emails, refetch } = api.tempmail.anonymousList.useQuery(
+    {
+      deviceId,
+    },
+    {
+      enabled: Boolean(deviceId),
+    },
+  )
+
+  const email = emails?.[0]?.email
+  const hasEmail = Boolean(email)
+
+  // create email
+  const createApi = api.tempmail.anonymousCreate.useMutation({
+    onSettled() {
+      refetch()
+    },
+  })
+
+  const onGetEmail = async () => {
+    if (hasEmail) {
+      alert('You already have an email')
+    } else {
+      createApi.mutate({
+        deviceId,
+      })
+    }
+  }
+
+  // email generating
+  const isLoading = createApi.isLoading
+
+  return (
+    <div className='mt-12'>
+      <button
+        className={`
+        rounded bg-blue-500 px-8 py-2 text-xl font-bold text-white hover:bg-blue-700
+        ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}
+        `}
+        onClick={onGetEmail}
+      >
+        Get Now
+      </button>
+    </div>
+  )
+}
+
+function EmailBox() {
+  const deviceId = useDeviceId()
+  // list emails
+  const { data: emails, refetch } = api.tempmail.anonymousList.useQuery(
+    {
+      deviceId,
+    },
+    {
+      enabled: Boolean(deviceId),
+    },
+  )
+
+  const email = emails?.[0]?.email ?? ''
+  const hasEmail = Boolean(email)
+
+  if (!hasEmail) {
+    return null
+  }
+
+  return (
+    <>
+      <TempEmail email={email} />
+      <InboxEmail email={email} />
+    </>
+  )
+}
+
+function TempEmail({ email = '' }: { email?: string }) {
+  const hasEmail = Boolean(email)
+
   const [copied, setCopied] = useState(false)
 
   const onCopy = async () => {
@@ -124,45 +162,48 @@ function Emails() {
     }, 3000)
   }
 
-  return (
-    <div className='mt-8'>
-      <div className='text-xl'>Email: </div>
-      <div className='mt-1 inline-flex items-center space-x-2 rounded border p-4'>
-        <div className='text-sm md:text-xl'>{email}</div>
-        <div className='inline-flex space-x-2'>
-          <button
-            className='rounded bg-green-500 px-2 py-1 text-xs font-bold text-white hover:bg-green-700 md:px-3 md:text-sm'
-            onClick={onCopy}
-          >
-            {copied ? 'Copied!' : 'Copy'}
-          </button>
+  if (!hasEmail) {
+    return null
+  }
 
-          {/* <button className="rounded bg-blue-500 px-3 py-1 font-bold text-white hover:bg-blue-700">
-            Inbox
-          </button> */}
+  return (
+    <>
+      <div
+        className='mt-12 w-full max-w-2xl rounded'
+        style={{
+          background: 'rgba(255,255,255,0.7)',
+        }}
+      >
+        <div className='px-4 py-3 space-y-2'>
+          <div className='w-full text-2xl break-all'>{email}</div>
+          <div>
+            <button
+              className='rounded bg-green-500 py-1 font-bold text-white hover:bg-green-700 w-20 text-sm'
+              onClick={onCopy}
+            >
+              {copied ? 'Copied!' : 'Copy'}
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   )
 }
 
-function Inbox() {
-  const { email: historyEmail } = useHistoryEmail()
-
+function InboxEmail({ email = '' }: { email?: string }) {
+  const deviceId = useDeviceId()
   const {
     data,
     refetch,
     isLoading: inboxLoading,
-  } = api.tempmail.inbox.useQuery(
+  } = api.tempmail.anonymousInbox.useQuery(
+    { deviceId, email },
     {
-      email: historyEmail,
-    },
-    {
-      enabled: !!historyEmail,
+      enabled: !!deviceId && !!email,
     },
   )
 
-  const inboxRefresh = api.tempmail.inboxRefresh.useMutation({
+  const inboxRefresh = api.tempmail.anonymousInboxRefresh.useMutation({
     onSuccess() {
       refetch()
     },
@@ -170,84 +211,91 @@ function Inbox() {
 
   const onRefresh = () => {
     inboxRefresh.mutate({
-      email: historyEmail,
+      deviceId,
+      email,
     })
   }
 
   const isLoading = inboxLoading || inboxRefresh.isLoading
 
   return (
-    <div className='mt-8'>
-      <div className='inline-block text-sm text-red-400'>
+    <>
+      <div
+        className='mt-4 max-w-2xl text-sm text-white'
+        style={{
+          textShadow: '0 1px red, 1px 0 red, -1px 0 red, 0 -1px red',
+        }}
+      >
         Before clicking the refresh button, please make sure that an email has
         been sent to this mailbox.
       </div>
-      <div className='mt-4 flex space-x-1'>
-        <span className='text-xl'>Inbox:</span>
+      <div
+        className='mt-4 w-full max-w-2xl rounded'
+        style={{
+          background: 'rgba(255,255,255,0.7)',
+        }}
+      >
+        <div className='p-4'>
+          <button
+            onClick={onRefresh}
+            className='rounded bg-yellow-500 py-1 text-sm font-bold text-white w-20 hover:bg-yellow-700'
+          >
+            Refresh
+          </button>
+          <div>
+            <div className='mt-2 rounded border border-gray-500 px-2 py-1 bg-white'>
+              {isLoading ? (
+                <Loading className='mt-1' />
+              ) : (
+                <>
+                  {data && data.length > 0 ? (
+                    <ul className='px-2'>
+                      {data?.map((item, index) => {
+                        return (
+                          <li
+                            key={index}
+                            className='border-b py-2 last:border-none'
+                          >
+                            <div className='flex items-center justify-between space-x-1'>
+                              <div className=' text-blue-400 hover:underline'>
+                                {item.from}
+                              </div>
+                              <div className='text-xs text-gray-400'>
+                                {dayjs(item.created_at).format(
+                                  'YYYY-MM-DD HH:mm:ss',
+                                )}
+                              </div>
+                            </div>
 
-        <button
-          onClick={onRefresh}
-          className='rounded bg-yellow-500 px-2 py-1 text-sm font-bold text-white hover:bg-yellow-700'
-        >
-          Refresh
-        </button>
-      </div>
-      <div className='mt-2 rounded border px-2 py-1'>
-        {isLoading ? (
-          <>
-            <div className='mt-1'>
-              <div className='animate-pulse space-y-1'>
-                <div className='h-4 w-1/2 rounded bg-gray-300' />
-                <div className='h-4 w-2/3 rounded bg-gray-300' />
-                <div className='h-4 w-1/3 rounded bg-gray-300' />
-              </div>
+                            <details className='mt-1'>
+                              <summary>{item.subject}</summary>
+                              {item.body_html && (
+                                <div
+                                  className='py-2'
+                                  dangerouslySetInnerHTML={{
+                                    __html: item.body_html,
+                                  }}
+                                />
+                              )}
+                              {!item.body_html && item.body_text && (
+                                <pre className='w-full overflow-x-auto'>
+                                  {item.body_text}
+                                </pre>
+                              )}
+                            </details>
+                          </li>
+                        )
+                      })}
+                    </ul>
+                  ) : (
+                    <div className='text-sm text-gray-700 h-14'>empty</div>
+                  )}
+                </>
+              )}
             </div>
-          </>
-        ) : (
-          <>
-            {data && data.length > 0 ? (
-              <ul className='px-2'>
-                {data?.map((item, index) => {
-                  return (
-                    <li
-                      key={index}
-                      className='
-         border-b py-2 last:border-none
-        '
-                    >
-                      <div className='flex items-center justify-between space-x-1'>
-                        <div className=' text-blue-400 hover:underline'>
-                          {item.from}
-                        </div>
-                        <div className='text-xs text-gray-400'>
-                          {dayjs(item.created_at).format('YYYY-MM-DD HH:mm:ss')}
-                        </div>
-                      </div>
-
-                      <details className='mt-1'>
-                        <summary>{item.subject}</summary>
-                        {item.body_html && (
-                          <div
-                            className='py-2'
-                            dangerouslySetInnerHTML={{ __html: item.body_html }}
-                          />
-                        )}
-                        {!item.body_html && item.body_text && (
-                          <pre className='w-full overflow-x-auto'>
-                            {item.body_text}
-                          </pre>
-                        )}
-                      </details>
-                    </li>
-                  )
-                })}
-              </ul>
-            ) : (
-              <div className='text-sm text-gray-500'>empty</div>
-            )}
-          </>
-        )}
+          </div>
+        </div>
       </div>
-    </div>
+    </>
   )
 }

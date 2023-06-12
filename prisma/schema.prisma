@@ -68,8 +68,9 @@ model TempMail {
     createdAt DateTime @default(now())
     email     String   @unique
     token     String
-    userId    String
-    user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    deviceId  String?
+    userId    String?
+    user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model TempMailInbox {

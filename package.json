@@ -26,6 +26,7 @@
     "ahooks": "^3.7.7",
     "axios": "^1.4.0",
     "dayjs": "^1.11.8",
+    "fingerprintjs2": "^2.1.4",
     "next": "^13.4.2",
     "next-auth": "^4.22.1",
     "react": "18.2.0",
@@ -35,6 +36,7 @@
   },
   "devDependencies": {
     "@types/eslint": "^8.37.0",
+    "@types/fingerprintjs2": "^2.0.0",
     "@types/node": "^18.16.0",
     "@types/prettier": "^2.7.2",
     "@types/react": "^18.2.6",

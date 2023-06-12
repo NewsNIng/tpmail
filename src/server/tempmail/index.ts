@@ -6,7 +6,13 @@ import { prisma } from '../db'
 const RapidAPIHost = 'temp-mail44.p.rapidapi.com'
 const RapidAPIKey = process.env.RAPID_API_KEY
 
-export async function tempMailCreate({ userId }: { userId: string }) {
+export async function tempMailCreate({
+  userId,
+  deviceId,
+}: {
+  userId?: string
+  deviceId?: string
+}) {
   const options = {
     method: 'POST',
     url: 'https://temp-mail44.p.rapidapi.com/api/v3/email/new',
@@ -15,10 +21,7 @@ export async function tempMailCreate({ userId }: { userId: string }) {
       'X-RapidAPI-Key': RapidAPIKey,
       'X-RapidAPI-Host': RapidAPIHost,
     },
-    data: {
-      key1: 'value',
-      key2: 'value',
-    },
+    data: {},
   }
 
   try {
@@ -33,6 +36,7 @@ export async function tempMailCreate({ userId }: { userId: string }) {
         email,
         token,
         userId,
+        deviceId,
       },
     })
   } catch (error) {
