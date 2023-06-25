@@ -1,3 +1,24 @@
+# TLDR;
+
+## Main files
+
+##### api router
+- src/server/api/routers/tempmail.ts
+##### mail service
+- src/server/tempmail/index.ts
+##### frontend
+- src/pages/pages/index.page.tsx
+
+
+## How to run
+
+rename **.env.example** to **.env** and fill in the values
+
+```bash
+npm install
+npm dev
+```
+
 # Create T3 App
 
 This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
