@@ -1,51 +1,59 @@
+import dayjs from 'dayjs'
+import { NextSeo } from 'next-seo'
 import Image from 'next/image'
 import { useEffect, useState } from 'react'
-import dayjs from 'dayjs'
 
-import { api } from '@/utils/api'
 import { getBrowserId } from '@/helper/fingerprint'
+import { api } from '@/utils/api'
 
 export default function Page() {
   return (
-    <div className='bg-red-200 min-h-[100vh]'>
-      <Image
-        className='z-0 blur-[3px] fixed inset-0'
-        src='/home_bg.png'
-        alt='bg'
-        fill
-        style={{
-          objectFit: 'cover',
-        }}
+    <>
+      <NextSeo
+        title='Temporary Email'
+        description='A temporary email service. You can use it to sign up to websites.'
+        canonical='https://tpmail-web.onrender.com'
       />
-      <div className='relative z-10 px-4 py-20 min-h-[78vh] overflow-y-auto flex flex-col items-center justify-center'>
-        <h1 className='text-white text-5xl leading-[60px] lg:text-[64px] lg:leading-[84px]'>
-          Get Your <span className=''>Temporary</span>{' '}
-          <span
-            className='font-bold'
+      <div className='bg-red-200 min-h-[100vh]'>
+        <Image
+          className='z-0 blur-[3px] fixed inset-0'
+          src='/home_bg.png'
+          alt='bg'
+          fill
+          style={{
+            objectFit: 'cover',
+          }}
+        />
+        <div className='relative z-10 px-4 py-20 min-h-[78vh] overflow-y-auto flex flex-col items-center justify-center'>
+          <h1 className='text-white text-5xl leading-[60px] lg:text-[64px] lg:leading-[84px]'>
+            Get Your <span className=''>Temporary</span>{' '}
+            <span
+              className='font-bold'
+              style={{
+                // 彩色 渐变
+                background: 'linear-gradient(45deg, #03a9f4 30%, #ffeb3b 90%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+              }}
+            >
+              Email
+            </span>
+          </h1>
+          <p
+            className='mt-4 text-gray-100 text-lg'
             style={{
-              // 彩色 渐变
-              background: 'linear-gradient(45deg, #03a9f4 30%, #ffeb3b 90%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
+              textShadow: '4px 4px 8px #000000',
             }}
           >
-            Email
-          </span>
-        </h1>
-        <p
-          className='mt-4 text-gray-100 text-lg'
-          style={{
-            textShadow: '4px 4px 8px #000000',
-          }}
-        >
-          This is a temporary email service. You can use it to sign up to
-          websites.
-        </p>
+            This is a temporary email service. You can use it to sign up to
+            websites.
+          </p>
 
-        <GetEmail />
-        <EmailBox />
+          <GetEmail />
+          <EmailBox />
+        </div>
       </div>
-    </div>
+    </>
   )
 }
 
